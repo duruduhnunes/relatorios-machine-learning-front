@@ -1,0 +1,13 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e3]:
+    - button "Abrir menu" [ref=e4]
+    - generic [ref=e12]:
+      - paragraph [ref=e13]: Saúde em Dados
+      - paragraph [ref=e14]: Gestão e Monitoramento
+    - searchbox "Buscar por município, unidade ou categoria..." [ref=e19]
+    - button "Notificações" [ref=e20]
+    - button "Gestor Municipal Secretaria de Saúde" [ref=e24]:
+      - generic [ref=e29]:
+        - generic [ref=e30]: Gestor Municipal
+        - generic [ref=e31]: Secretaria de Saúde
+  - button "Open Next.js Dev Tools" [ref=e37] [cursor=pointer]
