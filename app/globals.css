@@ -8,6 +8,17 @@
   --border: #1e293b;
   --sidebar: #0d1424;
   --primary: #38bdf8;
+
+  /* Gráficos — cores validadas contra o fundo dos cards (#111a2e) */
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
+  --grade: #1e293b;
+  --eixo: #334155;
+  --risco-baixo: #0ca30c;
+  --risco-moderado: #fab219;
+  --risco-alto: #d03b3b;
+  --sobe-bom: #0ca30c;
+  --desce-ruim: #e66767;
 }
 
 @theme inline {
