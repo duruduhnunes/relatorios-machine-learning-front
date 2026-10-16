@@ -14,7 +14,7 @@ export function HomePage() {
   const resumo = useMemo(() => gerarResumo(competencia), [competencia]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 py-2">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col justify-start">
           <h1 className="text-2xl font-semibold">Olá, Gestor!</h1>
@@ -48,7 +48,7 @@ export function HomePage() {
 
       <GraficoAtendimentos dados={resumo.atendimentos} />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <GraficoCobertura dados={resumo.cobertura} meta={resumo.meta} />
         <GraficoRisco dados={resumo.risco} indicadores={resumo.indicadores} />
       </div>
