@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { COMPETENCIAS, Competencia, gerarResumo } from "@/lib/dadosSaude";
 import { ResumoDoMes } from "@/components/resumoDoMes";
 import { Indicadores } from "@/components/graficos/indicadores";
@@ -9,8 +9,13 @@ import { GraficoAtendimentos } from "@/components/graficos/atendimentos";
 import { GraficoCobertura } from "@/components/graficos/cobertura";
 import { GraficoRisco } from "@/components/graficos/risco";
 
-export function HomePage() {
-  const [competencia, setCompetencia] = useState<Competencia>("2026-09");
+export function HomePage({
+  competencia,
+  onCompetenciaChange,
+}: {
+  competencia: Competencia;
+  onCompetenciaChange: (c: Competencia) => void;
+}) {
   const resumo = useMemo(() => gerarResumo(competencia), [competencia]);
 
   return (
@@ -28,7 +33,7 @@ export function HomePage() {
             <Calendar className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-primary" />
             <select
               value={competencia}
-              onChange={(e) => setCompetencia(e.target.value as Competencia)}
+              onChange={(e) => onCompetenciaChange(e.target.value as Competencia)}
               className="cursor-pointer appearance-none rounded-lg border border-border bg-card py-2.5 pr-10 pl-10 text-sm text-foreground focus:border-primary focus:outline-none"
             >
               {COMPETENCIAS.map((c) => (

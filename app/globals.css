@@ -19,6 +19,9 @@
   --risco-alto: #d03b3b;
   --sobe-bom: #0ca30c;
   --desce-ruim: #e66767;
+
+  /* Balão do usuário no chat — azul escuro o bastante para texto branco */
+  --bolha-usuario: #1e5fb8;
 }
 
 @theme inline {
