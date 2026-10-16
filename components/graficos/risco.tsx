@@ -67,7 +67,7 @@ export function GraficoRisco({ dados }: { dados: Risco[] }) {
                           rx={primeiro || ultimo ? 4 : 0}
                           fill={n.cor}
                         />
-                        {/* Quadra os cantos internos das pontas */}
+
                         {primeiro && w > 8 && <rect x={x0 + w - 4} y={yc - BARRA / 2} width={4} height={BARRA} fill={n.cor} />}
                         {ultimo && w > 8 && <rect x={x0} y={yc - BARRA / 2} width={4} height={BARRA} fill={n.cor} />}
                         {cabe && (
