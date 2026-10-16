@@ -43,3 +43,6 @@ next-env.d.ts
 # agentes de IA (recriados pelo next dev)
 AGENTS.md
 CLAUDE.md
+
+# capturas do playwright (console/snapshot dos testes de navegador)
+.playwright-mcp/
