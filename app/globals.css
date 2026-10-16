@@ -9,7 +9,6 @@
   --sidebar: #0d1424;
   --primary: #38bdf8;
 
-  /* Gráficos — cores validadas contra o fundo dos cards (#111a2e) */
   --serie-1: #3987e5;
   --serie-2: #d95926;
   --grade: #1e293b;
@@ -20,7 +19,6 @@
   --sobe-bom: #0ca30c;
   --desce-ruim: #e66767;
 
-  /* Balão do usuário no chat — azul escuro o bastante para texto branco */
   --bolha-usuario: #1e5fb8;
 }
 

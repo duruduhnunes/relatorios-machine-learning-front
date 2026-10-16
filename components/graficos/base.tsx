@@ -3,7 +3,6 @@
 import { Table2, BarChart3 } from "lucide-react";
 import { ReactNode, useEffect, useRef, useState } from "react";
 
-// Mede a largura do container para o SVG acompanhar o tamanho da tela
 export function useLargura<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [largura, setLargura] = useState(0);
@@ -133,7 +132,6 @@ export function Tooltip({
   largura: number;
   children: ReactNode;
 }) {
-  // Vira para a esquerda quando encostaria na borda direita
   const paraEsquerda = x > largura - 180;
   return (
     <div

@@ -96,7 +96,7 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
               </g>
             ))}
             {dados.map((d, i) =>
-              // ~52px por rótulo; o último mês sempre aparece
+
               (i % passoRotulo === 0 && ultimoPrev - i >= passoRotulo) || i === ultimoPrev ? (
                 <text key={d.mes} x={x(i)} y={ALTURA - 8} textAnchor="middle" className="fill-muted text-[11px]">
                   {d.mes}
@@ -104,7 +104,6 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
               ) : null,
             )}
 
-            {/* Início da previsão */}
             <rect x={inicioPrevisao} y={M.topo} width={M.esquerda + larguraPlot - inicioPrevisao} height={alturaPlot} fill="var(--foreground)" opacity={0.025} />
             <text x={inicioPrevisao + 6} y={M.topo + 10} className="fill-muted text-[11px]">Previsão</text>
 
@@ -113,7 +112,6 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
             <path d={linha("realizado")} fill="none" stroke="var(--serie-1)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
             <path d={linha("previsto")} fill="none" stroke="var(--serie-2)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
 
-            {/* Rótulos só nas pontas */}
             <circle cx={x(ultimoReal[0])} cy={y(ultimoReal[1])} r={4} fill="var(--serie-1)" stroke="var(--card)" strokeWidth={2} />
             <circle cx={x(ultimoPrev)} cy={y(dados[ultimoPrev].previsto!)} r={4} fill="var(--serie-2)" stroke="var(--card)" strokeWidth={2} />
             <text x={x(ultimoPrev) + 8} y={y(dados[ultimoPrev].previsto!)} dy="0.32em" className="fill-foreground text-[11px] font-medium tabular-nums">

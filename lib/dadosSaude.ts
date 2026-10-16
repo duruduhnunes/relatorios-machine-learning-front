@@ -1,8 +1,3 @@
-// Dados de exemplo para o Resumo Geral.
-// Enquanto o back-end/modelo não está ligado, os números são gerados de forma
-// determinística a partir da competência, então a mesma competência sempre
-// mostra os mesmos valores.
-
 export type Competencia = "2026-09" | "2026-10" | "2026-11" | "2026-12";
 
 export const COMPETENCIAS: { valor: Competencia; rotulo: string }[] = [
@@ -32,11 +27,11 @@ export type Indicador = {
   nome: string;
   total: number;
   anterior: number;
-  serie: number[]; // últimos 12 meses
+  serie: number[];
 };
 
 export type PontoAtendimento = {
-  mes: string; // "set/26"
+  mes: string;
   realizado: number | null;
   previsto: number | null;
   minimo: number | null;
@@ -63,7 +58,7 @@ export type ResumoGeral = {
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
-function aleatorio(semente: number) {
+export function aleatorio(semente: number) {
   let s = semente >>> 0;
   return () => {
     s = (s * 1664525 + 1013904223) >>> 0;
@@ -77,7 +72,7 @@ function rotuloMes(ano: number, mes: number) {
 
 export function gerarResumo(competencia: Competencia): ResumoGeral {
   const [ano, mesNum] = competencia.split("-").map(Number);
-  const indice = (ano - 2026) * 12 + (mesNum - 9); // 0 = set/26
+  const indice = (ano - 2026) * 12 + (mesNum - 9);
   const rand = aleatorio(2026 + indice * 97);
 
   const indicadores = GRUPOS.map((g, gi) => {
@@ -98,7 +93,6 @@ export function gerarResumo(competencia: Competencia): ResumoGeral {
     };
   });
 
-  // Atendimentos: 12 meses realizados até a competência + 3 meses previstos pelo modelo
   const atendimentos: PontoAtendimento[] = [];
   const inicio = new Date(ano, mesNum - 1 - 11, 1);
   let nivel = 8200;
@@ -113,7 +107,7 @@ export function gerarResumo(competencia: Competencia): ResumoGeral {
     atendimentos.push({
       mes: rotuloMes(d.getFullYear(), d.getMonth()),
       realizado: futuro ? null : valor,
-      // A previsão parte do último mês realizado, para a linha ficar contínua
+
       previsto: i >= 11 ? valor : null,
       minimo: i >= 11 ? valor - incerteza : null,
       maximo: i >= 11 ? valor + incerteza : null,
