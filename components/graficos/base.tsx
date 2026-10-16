@@ -51,11 +51,11 @@ export function CardGrafico({
         >
           {verTabela ? (
             <>
-              <BarChart3 className="size-3.5" /> Gráfico
+              <BarChart3 className="size-3.5" /> Ver gráfico
             </>
           ) : (
             <>
-              <Table2 className="size-3.5" /> Tabela
+              <Table2 className="size-3.5" /> Ver em tabela
             </>
           )}
         </button>
@@ -76,18 +76,15 @@ export function ItemLegenda({
   children,
 }: {
   cor: string;
-  forma?: "quadrado" | "linha" | "faixa";
+  forma?: "quadrado" | "linha" | "tracejado";
   children: ReactNode;
 }) {
-  const estilo =
-    forma === "linha"
-      ? "h-0.5 w-4 rounded-full"
-      : forma === "faixa"
-        ? "h-2.5 w-4 rounded-sm opacity-25"
-        : "size-2.5 rounded-sm";
+  const estilo = forma === "quadrado" ? "size-2.5 rounded-sm" : "h-0.5 w-4 rounded-full";
+  const fundo =
+    forma === "tracejado" ? `repeating-linear-gradient(90deg, ${cor} 0 5px, transparent 5px 8px)` : cor;
   return (
     <span className="flex items-center gap-1.5">
-      <span className={estilo} style={{ background: cor }} />
+      <span className={estilo} style={{ background: fundo }} />
       {children}
     </span>
   );

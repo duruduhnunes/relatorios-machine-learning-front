@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PontoAtendimento, numero } from "@/lib/dadosSaude";
+import { PontoAtendimento, mesPorExtenso, numero } from "@/lib/dadosSaude";
 import { CardGrafico, ItemLegenda, LinhaTooltip, Tooltip, useLargura } from "./base";
 
 const ALTURA = 280;
@@ -22,7 +22,7 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
   const [ref, largura] = useLargura<HTMLDivElement>();
   const [ativo, setAtivo] = useState<number | null>(null);
 
-  const valores = dados.flatMap((d) => [d.realizado, d.minimo, d.maximo]).filter((v): v is number => v !== null);
+  const valores = dados.flatMap((d) => [d.realizado, d.previsto]).filter((v): v is number => v !== null);
   const ticks = ticksLimpos(Math.min(...valores) * 0.97, Math.max(...valores));
   const yMin = ticks[0];
   const yMax = ticks[ticks.length - 1];
@@ -42,13 +42,6 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
   const reais = dados.map((d, i) => [i, d.realizado] as const).filter(([, v]) => v !== null) as [number, number][];
   const areaReal = `${linha("realizado")} L${x(reais[reais.length - 1][0])},${y(yMin)} L${x(reais[0][0])},${y(yMin)} Z`;
 
-  const faixa = dados.map((d, i) => [i, d] as const).filter(([, d]) => d.minimo !== null);
-  const areaFaixa =
-    faixa.map(([i, d], k) => `${k ? "L" : "M"}${x(i)},${y(d.maximo!)}`).join(" ") +
-    " " +
-    [...faixa].reverse().map(([i, d]) => `L${x(i)},${y(d.minimo!)}`).join(" ") +
-    " Z";
-
   const ultimoReal = reais[reais.length - 1];
   const ultimoPrev = dados.length - 1;
   const inicioPrevisao = x(ultimoReal[0]);
@@ -64,29 +57,26 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
 
   return (
     <CardGrafico
-      titulo="Atendimentos realizados e previsão do modelo"
-      subtitulo="Últimos 12 meses e projeção para os próximos 3"
+      titulo="Atendimentos por mês"
+      subtitulo="O último ano e o que esperamos para os próximos 3 meses"
       legenda={
         <>
-          <ItemLegenda cor="var(--serie-1)" forma="linha">Realizado</ItemLegenda>
-          <ItemLegenda cor="var(--serie-2)" forma="linha">Previsão (ML)</ItemLegenda>
-          <ItemLegenda cor="var(--serie-2)" forma="faixa">Intervalo de confiança</ItemLegenda>
+          <ItemLegenda cor="var(--serie-1)" forma="linha">Atendimentos feitos</ItemLegenda>
+          <ItemLegenda cor="var(--serie-2)" forma="tracejado">O que esperamos</ItemLegenda>
         </>
       }
       tabela={{
-        colunas: ["Mês", "Realizado", "Previsto", "Mínimo", "Máximo"],
+        colunas: ["Mês", "Atendimentos feitos", "O que esperamos"],
         linhas: dados.map((d) => [
-          d.mes,
+          mesPorExtenso(d.mes),
           d.realizado !== null ? numero(d.realizado) : "—",
           d.previsto !== null && d.realizado === null ? numero(d.previsto) : "—",
-          d.minimo !== null && d.realizado === null ? numero(d.minimo) : "—",
-          d.maximo !== null && d.realizado === null ? numero(d.maximo) : "—",
         ]),
       }}
     >
       <div ref={ref} className="relative" style={{ height: ALTURA }}>
         {largura > 0 && (
-          <svg width={largura} height={ALTURA} role="img" aria-label="Gráfico de linha de atendimentos mensais com previsão">
+          <svg width={largura} height={ALTURA} role="img" aria-label="Atendimentos por mês e o que esperamos para os próximos meses">
             {ticks.map((t) => (
               <g key={t}>
                 <line x1={M.esquerda} x2={M.esquerda + larguraPlot} y1={y(t)} y2={y(t)} stroke={t === yMin ? "var(--eixo)" : "var(--grade)"} />
@@ -104,14 +94,13 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
               ) : null,
             )}
 
-            {/* Início da previsão */}
+            {/* Daqui para frente é o que esperamos */}
             <rect x={inicioPrevisao} y={M.topo} width={M.esquerda + larguraPlot - inicioPrevisao} height={alturaPlot} fill="var(--foreground)" opacity={0.025} />
-            <text x={inicioPrevisao + 6} y={M.topo + 10} className="fill-muted text-[11px]">Previsão</text>
+            <text x={inicioPrevisao + 6} y={M.topo + 10} className="fill-muted text-[11px]">Próximos meses</text>
 
             <path d={areaReal} fill="var(--serie-1)" opacity={0.1} />
-            <path d={areaFaixa} fill="var(--serie-2)" opacity={0.18} />
             <path d={linha("realizado")} fill="none" stroke="var(--serie-1)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-            <path d={linha("previsto")} fill="none" stroke="var(--serie-2)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+            <path d={linha("previsto")} fill="none" stroke="var(--serie-2)" strokeWidth={2} strokeDasharray="6 4" strokeLinejoin="round" strokeLinecap="round" />
 
             {/* Rótulos só nas pontas */}
             <circle cx={x(ultimoReal[0])} cy={y(ultimoReal[1])} r={4} fill="var(--serie-1)" stroke="var(--card)" strokeWidth={2} />
@@ -145,14 +134,11 @@ export function GraficoAtendimentos({ dados }: { dados: PontoAtendimento[] }) {
         )}
         {pontoAtivo && ativo !== null && (
           <Tooltip x={x(ativo)} y={M.topo + alturaPlot / 2} largura={largura}>
-            <div className="mb-1 font-medium text-foreground">{pontoAtivo.mes}</div>
+            <div className="mb-1 font-medium text-foreground">{mesPorExtenso(pontoAtivo.mes)}</div>
             {pontoAtivo.realizado !== null ? (
-              <LinhaTooltip cor="var(--serie-1)" rotulo="Realizado" valor={numero(pontoAtivo.realizado)} />
+              <LinhaTooltip cor="var(--serie-1)" rotulo="Atendimentos feitos" valor={numero(pontoAtivo.realizado)} />
             ) : (
-              <>
-                <LinhaTooltip cor="var(--serie-2)" rotulo="Previsto" valor={numero(pontoAtivo.previsto!)} />
-                <LinhaTooltip rotulo="Intervalo" valor={`${numero(pontoAtivo.minimo!)} – ${numero(pontoAtivo.maximo!)}`} />
-              </>
+              <LinhaTooltip cor="var(--serie-2)" rotulo="Esperamos cerca de" valor={numero(pontoAtivo.previsto!)} />
             )}
           </Tooltip>
         )}
