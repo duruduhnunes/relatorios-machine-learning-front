@@ -61,7 +61,6 @@ export function AssistentePainel({
   const fim = useRef<HTMLDivElement>(null);
   const entrada = useRef<HTMLInputElement>(null);
 
-  // Rola para a última mensagem e devolve o foco ao campo ao abrir
   useEffect(() => {
     if (aberto) fim.current?.scrollIntoView({ block: "end" });
   }, [mensagens, digitando, aberto]);
@@ -83,7 +82,7 @@ export function AssistentePainel({
     setMensagens((m) => [...m, mensagemUsuario(limpa)]);
     setTexto("");
     setDigitando(true);
-    // Pequena pausa só para a resposta não aparecer no mesmo instante do envio
+
     setTimeout(() => {
       setMensagens((m) => [...m, responder(limpa, competencia)]);
       setDigitando(false);
@@ -262,7 +261,6 @@ function Cartao({ dados }: { dados: CartaoGrupo }) {
   );
 }
 
-// Anel de cobertura: a cor indica a distância da meta de 80%
 function Anel({ percentual }: { percentual: number }) {
   const raio = 16;
   const volta = 2 * Math.PI * raio;

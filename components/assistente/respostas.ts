@@ -1,7 +1,3 @@
-// Respostas do assistente montadas a partir dos mesmos dados do Resumo Geral.
-// Enquanto a API do modelo não está ligada, a interpretação da pergunta é feita
-// aqui por palavras-chave, então os números do chat batem com os dos gráficos.
-
 import { Competencia, GRUPOS, GrupoId, gerarResumo, numero } from "@/lib/dadosSaude";
 
 export type IconeSugestao = "grafico" | "comparar" | "pdf" | "pergunta";
@@ -81,7 +77,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
   const meta = resumo.meta;
   const grupo = identificarGrupo(pergunta);
 
-  // Ações que ainda dependem do back-end
   if (p.includes("pdf") || p.includes("relatorio") || p.includes("exportar")) {
     return {
       id: novoId(),
@@ -100,7 +95,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
     };
   }
 
-  // Evolução mensal de um grupo
   if ((p.includes("evolucao") || p.includes("historico") || p.includes("ultimos meses")) && grupo) {
     const ind = resumo.indicadores.find((i) => i.id === grupo)!;
     const serie = ind.serie.slice(-6);
@@ -118,7 +112,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
     };
   }
 
-  // Pergunta sobre um grupo específico
   if (grupo) {
     const ind = resumo.indicadores.find((i) => i.id === grupo)!;
     const cob = resumo.cobertura.find((c) => c.id === grupo)!;
@@ -141,7 +134,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
     };
   }
 
-  // Cobertura geral / grupos abaixo da meta
   if (p.includes("cobertura") || p.includes("meta") || p.includes("abaixo")) {
     const abaixo = resumo.cobertura.filter((c) => c.percentual < meta);
     return {
@@ -160,7 +152,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
     };
   }
 
-  // Atendimentos e previsão do modelo
   if (p.includes("atendimento") || p.includes("previsao") || p.includes("projecao") || p.includes("modelo")) {
     const realizados = resumo.atendimentos.filter((a) => a.realizado !== null);
     const ultimo = realizados[realizados.length - 1];
@@ -177,7 +168,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
     };
   }
 
-  // Risco
   if (p.includes("risco") || p.includes("grave") || p.includes("critico")) {
     const ordenado = [...resumo.risco].sort((a, b) => b.alto - a.alto);
     return {
@@ -189,7 +179,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
     };
   }
 
-  // Não entendi
   return {
     id: novoId(),
     autor: "bot",
@@ -205,7 +194,6 @@ export function responder(pergunta: string, competencia: Competencia): Mensagem 
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
-// Rótulos dos N meses que terminam na competência selecionada
 function rotulosMeses(competencia: Competencia, quantidade: number) {
   const [ano, mes] = competencia.split("-").map(Number);
   return Array.from({ length: quantidade }, (_, i) => {

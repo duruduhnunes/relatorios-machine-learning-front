@@ -33,10 +33,10 @@ export function GraficoCobertura({ dados, meta }: { dados: Cobertura[]; meta: nu
               const yc = M.topo + i * LINHA + LINHA / 2;
               const w = x(d.percentual) - M.esquerda;
               const r = 4;
-              // Se o número encostaria na linha da meta, ele pula para depois dela
+
               const xRotulo = M.esquerda + w + 6;
               const cruzaMeta = xRotulo - 4 < x(meta) && xRotulo + 32 > x(meta);
-              // Ponta arredondada, lado da base reto
+
               const caminho = `M${M.esquerda},${yc - BARRA / 2} H${M.esquerda + w - r} Q${M.esquerda + w},${yc - BARRA / 2} ${M.esquerda + w},${yc - BARRA / 2 + r} V${yc + BARRA / 2 - r} Q${M.esquerda + w},${yc + BARRA / 2} ${M.esquerda + w - r},${yc + BARRA / 2} H${M.esquerda} Z`;
               return (
                 <g key={d.id}>
