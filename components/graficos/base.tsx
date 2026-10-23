@@ -35,7 +35,7 @@ export function CardGrafico({
   const [verTabela, setVerTabela] = useState(false);
   return (
     <section
-      className={`flex flex-col gap-3 rounded-xl border border-border bg-card p-5 ${className}`}
+      className={`flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm ${className}`}
     >
       <header className="flex items-start justify-between gap-4">
         <div>
@@ -46,7 +46,7 @@ export function CardGrafico({
           type="button"
           onClick={() => setVerTabela(!verTabela)}
           aria-pressed={verTabela}
-          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted hover:bg-background hover:text-foreground"
+          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary-suave"
         >
           {verTabela ? (
             <>
