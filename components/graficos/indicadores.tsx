@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownRight, ArrowUpRight, Baby, Droplet, HeartPulse, PersonStanding, Venus } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Baby, Droplet, HeartPulse, PersonStanding, Venus } from "lucide-react";
 import { GrupoId, Indicador, numero } from "@/lib/dadosSaude";
 
 const ICONES: Record<GrupoId, typeof Venus> = {
@@ -11,59 +11,41 @@ const ICONES: Record<GrupoId, typeof Venus> = {
   idosos: PersonStanding,
 };
 
-export function Indicadores({ dados }: { dados: Indicador[] }) {
+export function Indicadores({ dados, onAbrirGrupo }: { dados: Indicador[]; onAbrirGrupo: (id: GrupoId) => void }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {dados.map((d) => {
         const Icone = ICONES[d.id];
-        const variacao = ((d.total - d.anterior) / d.anterior) * 100;
-        const subiu = variacao >= 0;
+        const diferenca = d.total - d.anterior;
+        const subiu = diferenca >= 0;
         const Seta = subiu ? ArrowUpRight : ArrowDownRight;
         return (
-          <div
+          <button
             key={d.id}
-            className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4"
+            type="button"
+            onClick={() => onAbrirGrupo(d.id)}
+            className="group flex cursor-pointer flex-col gap-1 rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition hover:border-primary hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <Icone className="size-4 text-primary" />
+            <div className="flex items-center gap-2 font-medium text-foreground">
+              <span className="grid size-9 place-items-center rounded-full bg-primary-suave">
+                <Icone className="size-5 text-primary" />
+              </span>
               {d.nome}
             </div>
-            <div className="flex items-end justify-between gap-2">
-              <div>
-                <div className="text-2xl font-semibold text-foreground">
-                  {numero(d.total)}
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted">
-                  <Seta
-                    className="size-3.5"
-                    style={{ color: subiu ? "var(--sobe-bom)" : "var(--desce-ruim)" }}
-                  />
-                  {subiu ? "+" : ""}
-                  {variacao.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% vs mês anterior
-                </div>
-              </div>
-              <MiniTendencia serie={d.serie} nome={d.nome} />
+            <div className="mt-2 text-3xl font-semibold text-foreground tabular-nums">{numero(d.total)}</div>
+            <div className="text-xs text-muted">pessoas acompanhadas</div>
+            <div className="mt-1 flex items-center gap-1 text-xs text-muted">
+              <Seta className="size-3.5" style={{ color: subiu ? "var(--sobe-bom)" : "var(--desce-ruim)" }} />
+              {diferenca === 0
+                ? "igual ao mês passado"
+                : `${numero(Math.abs(diferenca))} ${subiu ? "a mais" : "a menos"} que no mês passado`}
             </div>
-          </div>
+            <span className="mt-2 flex items-center gap-1 text-sm font-medium text-primary">
+              Ver lista <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+            </span>
+          </button>
         );
       })}
     </div>
-  );
-}
-
-function MiniTendencia({ serie, nome }: { serie: number[]; nome: string }) {
-  const w = 72;
-  const h = 28;
-  const min = Math.min(...serie);
-  const max = Math.max(...serie);
-  const px = (i: number) => 4 + (i / (serie.length - 1)) * (w - 8);
-  const py = (v: number) => 4 + (1 - (v - min) / (max - min || 1)) * (h - 8);
-  const caminho = serie.map((v, i) => `${i ? "L" : "M"}${px(i)},${py(v)}`).join(" ");
-  const ultimo = serie.length - 1;
-  return (
-    <svg width={w} height={h} role="img" aria-label={`Tendência de 12 meses de ${nome}`}>
-      <path d={caminho} fill="none" stroke="var(--muted)" strokeOpacity={0.6} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={px(ultimo)} cy={py(serie[ultimo])} r={3} fill="var(--serie-1)" stroke="var(--card)" strokeWidth={2} />
-    </svg>
   );
 }

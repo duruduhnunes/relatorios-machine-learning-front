@@ -14,7 +14,7 @@ import { PaginaCriancas } from "@/components/paginas/criancas";
 import { PaginaIdoso } from "@/components/paginas/idoso";
 
 export default function Home() {
-  const [menuAberto, setMenuaberto] = useState(false);
+  const [menuAberto, setMenuaberto] = useState(true);
   const [chatAberto, setChatAberto] = useState(false);
   const [secao, setSecao] = useState<SecaoId>("resumo");
   const [competencia, setCompetencia] = useState<Competencia>("2026-09");
@@ -25,11 +25,12 @@ export default function Home() {
 
       <div className="flex flex-1 overflow-hidden">
         {menuAberto && <Menu secao={secao} onSelecionar={setSecao} />}
-        <main className="flex-1 overflow-auto p-4">
+        <main className="flex-1 overflow-auto p-4 pb-28">
           {secao === "resumo" ? (
             <HomePage
               competencia={competencia}
               onCompetenciaChange={setCompetencia}
+              onAbrirGrupo={setSecao}
             />
           ) : secao === "gestantes" ? (
             <PaginaGestantes
@@ -57,7 +58,7 @@ export default function Home() {
               onCompetenciaChange={setCompetencia}
             />
           ) : (
-            <div className="text-center text-gray-500">
+            <div className="text-center text-muted">
               <h2 className="text-2xl font-bold">Nada pra mostrar aqui...</h2>
             </div>
           )}

@@ -103,7 +103,7 @@ export function AssistentePainel({
   return (
     <section
       aria-label="Assistente virtual"
-      className={`fixed right-6 bottom-6 z-50 max-h-[min(44rem,calc(100dvh-3rem))] w-[min(24rem,calc(100vw-3rem))] overflow-hidden rounded-2xl border border-primary/30 bg-sidebar shadow-[0_18px_50px_-12px_rgba(0,0,0,0.7),0_0_30px_-12px_var(--primary)] ${
+      className={`fixed right-6 bottom-6 z-50 max-h-[min(44rem,calc(100dvh-3rem))] w-[min(24rem,calc(100vw-3rem))] overflow-hidden rounded-2xl border border-primary/30 bg-sidebar shadow-[0_18px_50px_-12px_rgba(42,52,57,0.35)] ${
         aberto ? "flex flex-col" : "hidden"
       }`}
     >

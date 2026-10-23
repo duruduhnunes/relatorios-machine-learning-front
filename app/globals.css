@@ -1,25 +1,28 @@
 @import "tailwindcss";
 
+/* Tema claro e acolhedor: fundo creme, cartões brancos e verde-saúde como cor principal */
 :root {
-  --background: #0b1120;
-  --foreground: #e2e8f0;
-  --muted: #94a3b8;
-  --card: #111a2e;
-  --border: #1e293b;
-  --sidebar: #0d1424;
-  --primary: #38bdf8;
+  --background: #f6f3ee;
+  --foreground: #2a3439;
+  --muted: #5f6b70;
+  --card: #ffffff;
+  --border: #e4ddd2;
+  --sidebar: #edf4f0;
+  --primary: #2b7a68;
+  --primary-suave: #e2f0eb;
+  --aviso-suave: #fbeee6;
 
-  --serie-1: #3987e5;
-  --serie-2: #d95926;
-  --grade: #1e293b;
-  --eixo: #334155;
-  --risco-baixo: #0ca30c;
-  --risco-moderado: #fab219;
-  --risco-alto: #d03b3b;
-  --sobe-bom: #0ca30c;
-  --desce-ruim: #e66767;
+  --serie-1: #3478c0;
+  --serie-2: #d9773a;
+  --grade: #ece6dc;
+  --eixo: #d3cbbe;
+  --risco-baixo: #2f8a57;
+  --risco-moderado: #c98a12;
+  --risco-alto: #c4523b;
+  --sobe-bom: #2f8a57;
+  --desce-ruim: #c4523b;
 
-  --bolha-usuario: #1e5fb8;
+  --bolha-usuario: #2b7a68;
 }
 
 @theme inline {
@@ -30,8 +33,15 @@
   --color-border: var(--border);
   --color-sidebar: var(--sidebar);
   --color-primary: var(--primary);
+  --color-primary-suave: var(--primary-suave);
+  --color-aviso-suave: var(--aviso-suave);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* Letra um pouco maior para facilitar a leitura */
+html {
+  font-size: 17px;
 }
 
 body {

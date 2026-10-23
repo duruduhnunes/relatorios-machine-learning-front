@@ -35,7 +35,7 @@ export function CardGrafico({
   const [verTabela, setVerTabela] = useState(false);
   return (
     <section
-      className={`flex flex-col gap-3 rounded-xl border border-border bg-card p-5 ${className}`}
+      className={`flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm ${className}`}
     >
       <header className="flex items-start justify-between gap-4">
         <div>
@@ -46,15 +46,15 @@ export function CardGrafico({
           type="button"
           onClick={() => setVerTabela(!verTabela)}
           aria-pressed={verTabela}
-          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted hover:bg-background hover:text-foreground"
+          className="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary-suave"
         >
           {verTabela ? (
             <>
-              <BarChart3 className="size-3.5" /> Gráfico
+              <BarChart3 className="size-3.5" /> Ver gráfico
             </>
           ) : (
             <>
-              <Table2 className="size-3.5" /> Tabela
+              <Table2 className="size-3.5" /> Ver em tabela
             </>
           )}
         </button>
@@ -75,18 +75,15 @@ export function ItemLegenda({
   children,
 }: {
   cor: string;
-  forma?: "quadrado" | "linha" | "faixa";
+  forma?: "quadrado" | "linha" | "tracejado";
   children: ReactNode;
 }) {
-  const estilo =
-    forma === "linha"
-      ? "h-0.5 w-4 rounded-full"
-      : forma === "faixa"
-        ? "h-2.5 w-4 rounded-sm opacity-25"
-        : "size-2.5 rounded-sm";
+  const estilo = forma === "quadrado" ? "size-2.5 rounded-sm" : "h-0.5 w-4 rounded-full";
+  const fundo =
+    forma === "tracejado" ? `repeating-linear-gradient(90deg, ${cor} 0 5px, transparent 5px 8px)` : cor;
   return (
     <span className="flex items-center gap-1.5">
-      <span className={estilo} style={{ background: cor }} />
+      <span className={estilo} style={{ background: fundo }} />
       {children}
     </span>
   );
