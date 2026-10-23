@@ -141,3 +141,21 @@ export function gerarResumo(competencia: Competencia): ResumoGeral {
 }
 
 export const numero = (n: number) => n.toLocaleString("pt-BR");
+
+// Quantas pessoas de cada grupo estão em risco alto, do maior para o menor
+export function pessoasEmRiscoAlto(risco: Risco[], indicadores: Indicador[]) {
+  return risco
+    .map((r) => {
+      const total = indicadores.find((i) => i.id === r.id)?.total ?? 0;
+      return { id: r.id, nome: r.nome, percentual: r.alto, pessoas: Math.round((total * r.alto) / 100) };
+    })
+    .sort((a, b) => b.pessoas - a.pessoas);
+}
+
+const MESES_EXTENSO = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+// "dez/26" -> "dezembro de 2026"
+export function mesPorExtenso(rotulo: string) {
+  const [mes, ano] = rotulo.split("/");
+  return `${MESES_EXTENSO[MESES.indexOf(mes)]} de 20${ano}`;
+}
