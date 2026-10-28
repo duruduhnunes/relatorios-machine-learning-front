@@ -1,13 +1,24 @@
-import { gerarCriancas } from "@/lib/dadosCriancas";
-import {
-  Competencia,
-  COMPETENCIAS,
-  gerarResumo,
-  numero,
-} from "@/lib/dadosSaude";
-import { useMemo } from "react";
-import { SeletorCompetencia } from "../seletorCompetencia";
-import { Tabela } from "../tabela";
+"use client";
+
+import { useEffect, useState } from "react";
+import { COMPETENCIAS, Competencia, numero } from "@/lib/dadosSaude";
+import { Paciente, RISCOS } from "@/lib/pacientes";
+import { LinhaCrianca, obterRelatorio } from "@/hooks/relatorios";
+import { Tabela } from "@/components/tabela";
+import { SeletorCompetencia } from "@/components/seletorCompetencia";
+
+function paraPaciente(linha: LinhaCrianca): Paciente {
+  return {
+    id: linha.codigo,
+    nome: linha.nome,
+    idade: linha.idade,
+    unidade: linha.unidade_saude,
+    exame: linha.vacinacao_em_dia ? "Em dia" : "Atrasada",
+    consultas: linha.total_consultas,
+    ultimaConsulta: linha.ultima_consulta,
+    risco: RISCOS[linha.risco] ?? "Baixo",
+  };
+}
 
 export function PaginaCriancas({
   competencia,
@@ -16,16 +27,37 @@ export function PaginaCriancas({
   competencia: Competencia;
   onCompetenciaChange: (c: Competencia) => void;
 }) {
-  const resumo = useMemo(() => gerarResumo(competencia), [competencia]);
-  const criancas = useMemo(() => gerarCriancas(competencia), [competencia]);
-  const atendidas = useMemo(
-    () => criancas.filter((d) => d.consultas > 0),
-    [criancas],
-  );
+  const [pacientes, setPacientes] = useState<Paciente[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    const [ano, mes] = competencia.split("-").map(Number);
+    let cancelado = false;
+
+    async function carregar() {
+      setCarregando(true);
+      setErro("");
+      try {
+        const resposta = await obterRelatorio("relatorio_criancas", mes, ano);
+        if (!cancelado) setPacientes(resposta.dados.map(paraPaciente));
+      } catch (error) {
+        if (!cancelado) {
+          setErro(error instanceof Error ? error.message : "Erro ao carregar.");
+        }
+      } finally {
+        if (!cancelado) setCarregando(false);
+      }
+    }
+
+    carregar();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [competencia]);
+
   const rotulo = COMPETENCIAS.find((c) => c.valor === competencia)!.rotulo;
-  const cobertura = resumo.cobertura.find(
-    (c) => c.id === "criancas",
-  )!.percentual;
 
   return (
     <div className="flex flex-col gap-6">
@@ -33,10 +65,8 @@ export function PaginaCriancas({
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold">Crianças</h1>
           <p className="max-w-2xl text-sm text-muted">
-            Relatorio de acompanhamento de vacina das crianças. A tabela lista
-            os pacientes crianças que realizaram consultas e vacina em {rotulo}{" "}
-            — são {numero(atendidas.length)} de {numero(criancas.length)}{" "}
-            cadastrados, o que representa uma cobertura de {cobertura}%.
+            Relatório de acompanhamento de vacinação em {rotulo} —{" "}
+            {numero(pacientes.length)} crianças com consulta no período.
           </p>
         </div>
         <SeletorCompetencia
@@ -45,12 +75,21 @@ export function PaginaCriancas({
         />
       </div>
 
-      <Tabela pacientes={atendidas} tituloExame="Vacinação" />
+      {carregando && <p className="text-sm text-muted">Carregando...</p>}
 
-      <p className="text-xs text-muted">
-        Dados de exemplo — serão substituídos pelos registros reais quando a API
-        estiver conectada.
-      </p>
+      {erro && (
+        <p
+          role="alert"
+          className="text-sm"
+          style={{ color: "var(--risco-alto)" }}
+        >
+          {erro}
+        </p>
+      )}
+
+      {!carregando && !erro && (
+        <Tabela pacientes={pacientes} tituloExame="Vacinação" />
+      )}
     </div>
   );
 }

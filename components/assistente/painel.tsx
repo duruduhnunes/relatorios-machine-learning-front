@@ -19,15 +19,16 @@ import {
   X,
 } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { Competencia, GrupoId, numero } from "@/lib/dadosSaude";
+import { GrupoId, numero } from "@/lib/dadosSaude";
+import { enviarMensagemChatBoot } from "@/hooks/chatboot";
 import {
   CartaoGrupo,
   IconeSugestao,
   Item,
   Mensagem,
   Sugestao,
+  mensagemBot,
   mensagemUsuario,
-  responder,
   saudacao,
 } from "./respostas";
 
@@ -47,11 +48,9 @@ const ICONES_SUGESTAO: Record<IconeSugestao, typeof BarChart3> = {
 };
 
 export function AssistentePainel({
-  competencia,
   aberto,
   onFechar,
 }: {
-  competencia: Competencia;
   aberto: boolean;
   onFechar: () => void;
 }) {
@@ -76,17 +75,25 @@ export function AssistentePainel({
     return () => window.removeEventListener("keydown", aoTeclar);
   }, [aberto, onFechar]);
 
-  function perguntar(pergunta: string) {
+  async function perguntar(pergunta: string) {
     const limpa = pergunta.trim();
     if (!limpa || digitando) return;
     setMensagens((m) => [...m, mensagemUsuario(limpa)]);
     setTexto("");
     setDigitando(true);
 
-    setTimeout(() => {
-      setMensagens((m) => [...m, responder(limpa, competencia)]);
+    try {
+      const resposta = await enviarMensagemChatBoot(limpa);
+      setMensagens((m) => [...m, mensagemBot(resposta.texto)]);
+    } catch (error) {
+      const erro = error instanceof Error ? error.message : String(error);
+      setMensagens((m) => [
+        ...m,
+        mensagemBot(`Não consegui falar com o servidor. ${erro}`),
+      ]);
+    } finally {
       setDigitando(false);
-    }, 600);
+    }
   }
 
   function enviar(e: FormEvent) {

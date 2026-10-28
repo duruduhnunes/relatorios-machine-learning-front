@@ -1,7 +1,9 @@
 "use client";
 
 import { NavBar } from "@/components/navBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { lerToken } from "@/hooks/token";
 import { Menu, SecaoId } from "@/components/menu";
 import { HomePage } from "@/components/homePage";
 import { PaginaGestantes } from "@/components/paginas/gestantes";
@@ -14,10 +16,15 @@ import { PaginaCriancas } from "@/components/paginas/criancas";
 import { PaginaIdoso } from "@/components/paginas/idoso";
 
 export default function Home() {
+  const router = useRouter();
   const [menuAberto, setMenuaberto] = useState(true);
   const [chatAberto, setChatAberto] = useState(false);
   const [secao, setSecao] = useState<SecaoId>("resumo");
   const [competencia, setCompetencia] = useState<Competencia>("2026-09");
+
+  useEffect(() => {
+    if (!lerToken()) router.replace("/login");
+  }, [router]);
 
   return (
     <div className="flex h-screen flex-col">
@@ -69,11 +76,7 @@ export default function Home() {
         oculto={chatAberto}
         onAbrir={() => setChatAberto(true)}
       />
-      <AssistentePainel
-        competencia={competencia}
-        aberto={chatAberto}
-        onFechar={() => setChatAberto(false)}
-      />
+      <AssistentePainel aberto={chatAberto} onFechar={() => setChatAberto(false)} />
     </div>
   );
 }

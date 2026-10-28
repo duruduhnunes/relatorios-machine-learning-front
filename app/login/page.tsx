@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { lerToken, salvarToken } from "@/hooks/token";
+import { fazerLogin } from "@/hooks/login";
 
 export default function Login() {
   const router = useRouter();
@@ -12,16 +14,35 @@ export default function Login() {
   const [verSenha, setVerSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [esqueci, setEsqueci] = useState(false);
+  const [entrando, setEntrando] = useState(false);
 
-  function entrar(e: FormEvent) {
+  useEffect(() => {
+    if (lerToken()) router.replace("/");
+  }, [router]);
+
+  async function entrar(e: FormEvent) {
     e.preventDefault();
     if (!email.trim() || !senha) {
       setErro("Preencha o seu e-mail e a sua senha para entrar.");
       return;
     }
-    // Ainda não há API de login: por enquanto qualquer e-mail e senha entram no painel
+
     setErro("");
-    router.push("/");
+    setEntrando(true);
+
+    try {
+      const { access_token } = await fazerLogin(email.trim(), senha);
+      salvarToken(access_token);
+      router.replace("/");
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Erro ao fazer login. Tente novamente.",
+      );
+    } finally {
+      setEntrando(false);
+    }
   }
 
   return (
@@ -30,8 +51,12 @@ export default function Login() {
         <div className="flex flex-col items-center gap-3 text-center">
           <Image src="/coracao.png" alt="" width={56} height={56} />
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Saúde em Dados</h1>
-            <p className="text-muted">Que bom ter você aqui! Entre para ver os dados do seu município.</p>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Saúde em Dados
+            </h1>
+            <p className="text-muted">
+              Que bom ter você aqui! Entre para ver os dados do seu município.
+            </p>
           </div>
         </div>
 
@@ -65,22 +90,30 @@ export default function Login() {
                 aria-label={verSenha ? "Esconder senha" : "Mostrar senha"}
                 className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer rounded-lg p-2 text-muted hover:text-foreground"
               >
-                {verSenha ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                {verSenha ? (
+                  <EyeOff className="size-5" />
+                ) : (
+                  <Eye className="size-5" />
+                )}
               </button>
             </span>
           </label>
 
           {erro && (
-            <p role="alert" className="rounded-xl bg-aviso-suave px-4 py-3 text-sm text-foreground">
+            <p
+              role="alert"
+              className="rounded-xl bg-aviso-suave px-4 py-3 text-sm text-foreground"
+            >
               {erro}
             </p>
           )}
 
           <button
             type="submit"
-            className="mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-base font-semibold text-white shadow-sm hover:opacity-90"
+            disabled={entrando}
+            className="... disabled:opacity-60"
           >
-            <LogIn className="size-5" /> Entrar
+            <LogIn className="size-5" /> {entrando ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
@@ -94,7 +127,8 @@ export default function Login() {
           </button>
           {esqueci && (
             <p className="mt-2 text-muted">
-              Sem problema! Fale com o responsável pelo sistema na Secretaria de Saúde para criar uma senha nova.
+              Sem problema! Fale com o responsável pelo sistema na Secretaria de
+              Saúde para criar uma senha nova.
             </p>
           )}
         </div>

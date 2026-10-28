@@ -58,7 +58,7 @@ export type ResumoGeral = {
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
-export function aleatorio(semente: number) {
+function aleatorio(semente: number) {
   let s = semente >>> 0;
   return () => {
     s = (s * 1664525 + 1013904223) >>> 0;

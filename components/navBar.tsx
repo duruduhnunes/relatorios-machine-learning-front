@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { Bell, LogOut, Menu, Search, User } from "lucide-react";
+import { sair } from "@/hooks/token";
 
 export function NavBar({ onToggleMenu }: { onToggleMenu: () => void }) {
   return (
@@ -53,13 +55,14 @@ export function NavBar({ onToggleMenu }: { onToggleMenu: () => void }) {
         </span>
       </div>
 
-      <Link
-        href="/login"
-        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-primary-suave hover:text-foreground"
+      <button
+        type="button"
+        onClick={sair}
+        className="flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-primary-suave hover:text-foreground"
       >
         <LogOut className="size-4" />
         <span className="hidden sm:inline">Sair</span>
-      </Link>
+      </button>
     </div>
   );
 }

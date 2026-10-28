@@ -1,8 +1,24 @@
-import { gerarHipertensos } from "@/lib/dadosHipertensos";
-import { COMPETENCIAS, Competencia, gerarResumo, numero } from "@/lib/dadosSaude";
-import { useMemo } from "react";
-import { Tabela } from "../tabela";
+"use client";
+
+import { useEffect, useState } from "react";
+import { COMPETENCIAS, Competencia, numero } from "@/lib/dadosSaude";
+import { Paciente, RISCOS } from "@/lib/pacientes";
+import { LinhaHipertenso, obterRelatorio } from "@/hooks/relatorios";
+import { Tabela } from "@/components/tabela";
 import { SeletorCompetencia } from "@/components/seletorCompetencia";
+
+function paraPaciente(linha: LinhaHipertenso): Paciente {
+  return {
+    id: linha.codigo,
+    nome: linha.nome,
+    idade: linha.idade,
+    unidade: linha.unidade_saude,
+    exame: `${linha.pressao_sistolica}/${linha.pressao_diastolica} mmHg`,
+    consultas: linha.total_consultas,
+    ultimaConsulta: linha.ultima_consulta,
+    risco: RISCOS[linha.risco] ?? "Baixo",
+  };
+}
 
 export function PaginaHipertensos({
   competencia,
@@ -11,18 +27,36 @@ export function PaginaHipertensos({
   competencia: Competencia;
   onCompetenciaChange: (c: Competencia) => void;
 }) {
-  const resumo = useMemo(() => gerarResumo(competencia), [competencia]);
-  const hipertensos = useMemo(
-    () => gerarHipertensos(competencia),
-    [competencia],
-  );
-  const atendidos = useMemo(
-    () => hipertensos.filter((d) => d.consultas > 0),
-    [hipertensos],
-  );
-  const cobertura = resumo.cobertura.find(
-    (c) => c.id === "hipertensos",
-  )!.percentual;
+  const [pacientes, setPacientes] = useState<Paciente[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    const [ano, mes] = competencia.split("-").map(Number);
+    let cancelado = false;
+
+    async function carregar() {
+      setCarregando(true);
+      setErro("");
+      try {
+        const resposta = await obterRelatorio("relatorio_hipertensos", mes, ano);
+        if (!cancelado) setPacientes(resposta.dados.map(paraPaciente));
+      } catch (error) {
+        if (!cancelado) {
+          setErro(error instanceof Error ? error.message : "Erro ao carregar.");
+        }
+      } finally {
+        if (!cancelado) setCarregando(false);
+      }
+    }
+
+    carregar();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [competencia]);
+
   const rotulo = COMPETENCIAS.find((c) => c.valor === competencia)!.rotulo;
 
   return (
@@ -31,10 +65,8 @@ export function PaginaHipertensos({
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold">Hipertensos</h1>
           <p className="max-w-2xl text-sm text-muted">
-            Relatorio de acompanhamento de pressão arterial. A tabela lista os
-            pacientes hipertensos que realizaram consultas em {rotulo} — são{" "}
-            {numero(atendidos.length)} de {numero(hipertensos.length)}{" "}
-            cadastrados, o que representa uma cobertura de {cobertura}%.
+            Relatório de acompanhamento de pressão arterial em {rotulo} —{" "}
+            {numero(pacientes.length)} hipertensos com consulta no período.
           </p>
         </div>
         <SeletorCompetencia
@@ -43,12 +75,21 @@ export function PaginaHipertensos({
         />
       </div>
 
-      <Tabela pacientes={atendidos} tituloExame="Pressão" />
+      {carregando && <p className="text-sm text-muted">Carregando...</p>}
 
-      <p className="text-xs text-muted">
-        Dados de exemplo — serão substituídos pelos registros reais quando a API
-        estiver conectada.
-      </p>
+      {erro && (
+        <p
+          role="alert"
+          className="text-sm"
+          style={{ color: "var(--risco-alto)" }}
+        >
+          {erro}
+        </p>
+      )}
+
+      {!carregando && !erro && (
+        <Tabela pacientes={pacientes} tituloExame="Pressão" />
+      )}
     </div>
   );
 }
