@@ -6,6 +6,7 @@ import { Paciente, RISCOS } from "@/lib/pacientes";
 import { LinhaCrianca, obterRelatorio } from "@/hooks/relatorios";
 import { Tabela } from "@/components/tabela";
 import { SeletorCompetencia } from "@/components/seletorCompetencia";
+import { BotoesExportar } from "@/components/botoesExportar";
 
 function paraPaciente(linha: LinhaCrianca): Paciente {
   return {
@@ -69,10 +70,13 @@ export function PaginaCriancas({
             {numero(pacientes.length)} crianças com consulta no período.
           </p>
         </div>
-        <SeletorCompetencia
-          valor={competencia}
-          onChange={onCompetenciaChange}
-        />
+        <div className="flex flex-wrap items-start gap-2">
+          <SeletorCompetencia
+            valor={competencia}
+            onChange={onCompetenciaChange}
+          />
+          <BotoesExportar relatorio="relatorio_criancas" competencia={competencia} />
+        </div>
       </div>
 
       {carregando && <p className="text-sm text-muted">Carregando...</p>}

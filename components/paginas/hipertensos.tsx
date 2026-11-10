@@ -6,6 +6,7 @@ import { Paciente, RISCOS } from "@/lib/pacientes";
 import { LinhaHipertenso, obterRelatorio } from "@/hooks/relatorios";
 import { Tabela } from "@/components/tabela";
 import { SeletorCompetencia } from "@/components/seletorCompetencia";
+import { BotoesExportar } from "@/components/botoesExportar";
 
 function paraPaciente(linha: LinhaHipertenso): Paciente {
   return {
@@ -69,10 +70,13 @@ export function PaginaHipertensos({
             {numero(pacientes.length)} hipertensos com consulta no período.
           </p>
         </div>
-        <SeletorCompetencia
-          valor={competencia}
-          onChange={onCompetenciaChange}
-        />
+        <div className="flex flex-wrap items-start gap-2">
+          <SeletorCompetencia
+            valor={competencia}
+            onChange={onCompetenciaChange}
+          />
+          <BotoesExportar relatorio="relatorio_hipertensos" competencia={competencia} />
+        </div>
       </div>
 
       {carregando && <p className="text-sm text-muted">Carregando...</p>}

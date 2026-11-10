@@ -22,6 +22,11 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { GrupoId, numero } from "@/lib/dadosSaude";
 import { enviarMensagemChatBoot } from "@/hooks/chatboot";
 import {
+  FormatoExportacao,
+  RelatorioNome,
+  exportarRelatorio,
+} from "@/hooks/relatorios";
+import {
   CartaoGrupo,
   IconeSugestao,
   Item,
@@ -84,7 +89,17 @@ export function AssistentePainel({
 
     try {
       const resposta = await enviarMensagemChatBoot(limpa);
-      setMensagens((m) => [...m, mensagemBot(resposta.texto)]);
+
+      const exportar =
+        resposta.tipo === "relatorio" && resposta.intencao
+          ? {
+              relatorio: resposta.intencao as RelatorioNome,
+              mes: Number(resposta.parametros.mes),
+              ano: Number(resposta.parametros.ano),
+            }
+          : undefined;
+
+      setMensagens((m) => [...m, mensagemBot(resposta.texto, exportar)]);
     } catch (error) {
       const erro = error instanceof Error ? error.message : String(error);
       setMensagens((m) => [
@@ -230,10 +245,57 @@ function BalaoBot({
           )}
         </div>
       </div>
+      {mensagem.exportar && (
+        <div className="flex flex-wrap gap-2">
+          <BotaoExportar dados={mensagem.exportar} formato="pdf" />
+          <BotaoExportar dados={mensagem.exportar} formato="excel" />
+        </div>
+      )}
       {mensagem.sugestoes && (
         <Sugestoes lista={mensagem.sugestoes} onEscolher={onSugestao} />
       )}
     </div>
+  );
+}
+
+const ROTULOS_FORMATO: Record<FormatoExportacao, string> = {
+  pdf: "Baixar PDF",
+  excel: "Baixar Excel",
+};
+
+function BotaoExportar({
+  dados,
+  formato,
+}: {
+  dados: NonNullable<Mensagem["exportar"]>;
+  formato: FormatoExportacao;
+}) {
+  const [baixando, setBaixando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function baixar() {
+    setBaixando(true);
+    setErro("");
+    try {
+      await exportarRelatorio(dados.relatorio, formato, dados.mes, dados.ano);
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Não consegui gerar o arquivo.");
+    } finally {
+      setBaixando(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={baixar}
+      disabled={baixando}
+      title={erro || undefined}
+      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-2 text-xs text-foreground hover:border-primary/50 hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      <FileText className="size-3.5 text-primary" />
+      {baixando ? "Gerando..." : erro ? "Tentar de novo" : ROTULOS_FORMATO[formato]}
+    </button>
   );
 }
 

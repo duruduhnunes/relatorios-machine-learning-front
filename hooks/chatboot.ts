@@ -2,7 +2,7 @@ import { BackendURL } from "./backendURL";
 import { lerToken, sair } from "./token";
 
 export type RespostaChatBoot = {
-  tipo: string;
+  tipo: "mensagem" | "pergunta" | "relatorio" | "erro";
   texto: string;
   intencao: string;
   parametros: Record<string, unknown>;

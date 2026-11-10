@@ -76,3 +76,49 @@ export async function obterRelatorio<N extends RelatorioNome>(
 
   return resposta.json();
 }
+
+export type FormatoExportacao = "excel" | "pdf";
+
+export async function exportarRelatorio(
+  nome: RelatorioNome,
+  formato: FormatoExportacao,
+  mes: number,
+  ano: number,
+): Promise<void> {
+  const token = lerToken();
+  const busca = new URLSearchParams({ mes: String(mes), ano: String(ano) });
+  const resposta = await fetch(
+    BackendURL(`/relatorios/${nome}/exportar/${formato}?${busca}`),
+    {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    },
+  );
+
+  if (!resposta.ok) {
+    if (resposta.status === 401) sair();
+    const corpo: { detail?: string } | null = await resposta
+      .json()
+      .catch(() => null);
+    throw new Error(
+      `${resposta.status} — ${corpo?.detail ?? resposta.statusText}`,
+    );
+  }
+
+  const disposicao = resposta.headers.get("Content-Disposition") ?? "";
+  const extensao = formato === "excel" ? "xlsx" : "pdf";
+  const nomeArquivo =
+    disposicao.match(/filename="?([^"]+)"?/)?.[1] ??
+    `${nome}_${ano}-${String(mes).padStart(2, "0")}.${extensao}`;
+
+  const url = URL.createObjectURL(await resposta.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = nomeArquivo;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
